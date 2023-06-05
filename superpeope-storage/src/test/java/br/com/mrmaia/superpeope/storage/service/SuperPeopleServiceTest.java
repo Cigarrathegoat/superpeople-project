@@ -1,6 +1,7 @@
 package br.com.mrmaia.superpeope.storage.service;
 
 import br.com.mrmaia.superpeope.storage.exceptions.*;
+import br.com.mrmaia.superpeope.storage.model.SuperPeopleBuilder;
 import br.com.mrmaia.superpeope.storage.services.ISuperPowerService;
 import br.com.mrmaia.superpeope.storage.services.impl.SuperPeopleService;
 import br.com.mrmaia.superpeope.storage.repositories.ISuperPeopleRepository;
@@ -145,30 +146,17 @@ public class SuperPeopleServiceTest {
                                         .build()
                         )
                 );
-        List<SuperPeople> superPeopleFound = superPeopleService.findSuperPeopleByName(
-                SuperPeople.builder()
-                        .name("Big Man").level(1L).currentExperience(1L)
-                        .nextLevelExperience(1L).planet("Big Planet")
-                        .superPowers(List.of(SuperPower.builder().id(1L).build()))
-                        .type("hero").strength(5L).constitution(5L).dexterity(5L)
-                        .intelligence(5L).wisdom(5L).charisma(5L)
-                        .build());
+        List<SuperPeople> superPeopleFound = superPeopleService.findSuperPeopleByName("Big Man");
         Assertions.assertNotNull(superPeopleFound);
     }
 
     @Test
     void findSuperPeopleByNameSuperPeopleNotFoundExceptionError()
             throws SuperPeopleNotFoundException {
-        when(superPeopleRepository.findSuperPeopleByName(any())).thenReturn(null);
+        when(superPeopleRepository.findSuperPeopleByName(any())).thenReturn(List.of());
         SuperPeopleNotFoundException thrown = Assertions.assertThrows(
                 SuperPeopleNotFoundException.class, () -> {
-                    superPeopleService.findSuperPeopleByName(SuperPeople.builder()
-                            .name("").level(1L).currentExperience(1L)
-                            .nextLevelExperience(1L).planet("Big Planet")
-                            .superPowers(List.of(SuperPower.builder().id(1L).build()))
-                            .type("hero").strength(5L).constitution(5L).dexterity(5L)
-                            .intelligence(5L).wisdom(5L).charisma(5L)
-                            .build());
+                    superPeopleService.findSuperPeopleByName("Big Man");
                 }
         );
         Assertions.assertEquals("S04", thrown.getCode());
@@ -253,6 +241,42 @@ public class SuperPeopleServiceTest {
                     superPeopleService.update(SuperPeople.builder()
                             .name("Big Man").planet("Big Planet").type("Hero").build());
                 });
+        Assertions.assertEquals("S04", thrown.getCode());
+        Assertions.assertEquals("not found", thrown.getMessage());
+    }
+    // public SuperPeople experienceAndLevelApplier(SuperPeople superPeople, Long xpGained)
+    //            throws SuperPeopleNotFoundException {
+    //        log.info("initialized xpAndLevelApplier");
+    //        experienceAdder(superPeople, xpGained);
+    //        nextLevelCalculator(superPeople);
+    //        log.info("successfully concluded xpAndLevelApplier");
+    //        return superPeople;
+    //    }
+    @Test
+    void testExperienceAndLevelApplierSuccess() throws InvalidNameException, SuperPeopleNotFoundException {
+        var heroTested = SuperPeopleBuilder.superPeopleSuccessBuilder();
+        when(superPeopleRepository.findById(1L)).thenReturn(Optional.of(heroTested));
+        superPeopleService.experienceAndLevelApplier(heroTested.getId(), 100L, true);
+    }
+
+    //void testUpdateSuperPersonNotFoundExceptionError() throws SuperPeopleNotFoundException {
+    //        when(superPeopleRepository.findById(any())).thenReturn(Optional.empty());
+    //        SuperPeopleNotFoundException thrown = Assertions.assertThrows(SuperPeopleNotFoundException.class,
+    //                () -> {
+    //                    superPeopleService.update(SuperPeople.builder()
+    //                            .name("Big Man").planet("Big Planet").type("Hero").build());
+    //                });
+    //        Assertions.assertEquals("S04", thrown.getCode());
+    //        Assertions.assertEquals("not found", thrown.getMessage());
+    //    }
+    @Test
+    void testExperienceAndLevelApplierSuperPeopleNotFoundExceptionError()
+            throws SuperPeopleNotFoundException {
+        var heroTested = SuperPeopleBuilder.superPeopleSuccessBuilder();
+        when(superPeopleRepository.findById(any())).thenReturn(Optional.empty());
+        SuperPeopleNotFoundException thrown = Assertions.assertThrows(SuperPeopleNotFoundException.class,
+                () ->{superPeopleService.experienceAndLevelApplier(heroTested.getId(), 50L, true);
+        });
         Assertions.assertEquals("S04", thrown.getCode());
         Assertions.assertEquals("not found", thrown.getMessage());
     }

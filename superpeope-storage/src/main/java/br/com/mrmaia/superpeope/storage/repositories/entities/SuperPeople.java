@@ -1,11 +1,11 @@
 package br.com.mrmaia.superpeope.storage.repositories.entities;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -37,7 +37,7 @@ public class SuperPeople {
     private Long level = 1L;
 
     @Column(name = "DS_CURRENTEXPERIENCE")
-    private Long currentExperience;
+    private double currentExperience;
 
     @Column(name = "DS_NEXTLEVELEXPERIENCE")
     private Long nextLevelExperience = 100L;

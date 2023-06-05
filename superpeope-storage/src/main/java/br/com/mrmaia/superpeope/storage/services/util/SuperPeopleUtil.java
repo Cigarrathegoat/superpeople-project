@@ -4,8 +4,10 @@ import br.com.mrmaia.superpeope.storage.exceptions.BattleAttributeWithValueZeroE
 import br.com.mrmaia.superpeope.storage.exceptions.InvalidNameException;
 import br.com.mrmaia.superpeope.storage.exceptions.SuperPeopleNotFoundException;
 import br.com.mrmaia.superpeope.storage.exceptions.ExcessiveTotalBattleAttributesException;
+import br.com.mrmaia.superpeope.storage.repositories.entities.SuperPeople;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class SuperPeopleUtil {
 
@@ -22,10 +24,15 @@ public class SuperPeopleUtil {
         }
     }
 
-    public static void superPeopleFoundVerifier(String name) throws SuperPeopleNotFoundException {
-        if (!StringUtil.validateStringIsNotNullOrBlank(name)) {
+    public static void superPeopleFoundVerifier(List<SuperPeople> superPeopleList, String heroName)
+            throws SuperPeopleNotFoundException {
+        if (!StringUtil.validateStringIsNotNullOrBlank(heroName)) {
             throw new SuperPeopleNotFoundException("S04", "not found");
             //change this so that it checks for heroFind, and checks whether it is present in the List<>
+        }
+        boolean found = superPeopleList.stream().anyMatch(superPeople -> superPeople.getName().equals(heroName));
+        if (!found) {
+            throw new SuperPeopleNotFoundException("S04", "not found");
         }
     }
 
@@ -50,10 +57,17 @@ public class SuperPeopleUtil {
         }
     }
 
+    public static Double battleExperienceCalculator(SuperPeople superPeople, boolean winner) {
+        return winner ? winnerExperienceCalculator(superPeople) : loserExperienceCalculator(superPeople);
+    }
 
+    private static Double winnerExperienceCalculator(SuperPeople superPeople) {
+        return superPeople.getCurrentExperience() + ((superPeople.getLevel() * 10) / 1.5);
+    }
 
-
-
+    private static Double loserExperienceCalculator(SuperPeople superPeople) {
+        return superPeople.getCurrentExperience() + ((superPeople.getLevel() * 10) / 2.5);
+    }
 
 
 }
